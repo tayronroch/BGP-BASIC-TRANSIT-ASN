@@ -1,4 +1,4 @@
-# Huawei Enterprise Router Lab - Políticas de Roteamento Diferenciadas
+# Huawei Enterprise Router Lab - Políticas de Roteamento SP
 
 Este repositório contém a configuração e a documentação de um laboratório utilizando roteadores Huawei Enterprise, com foco na implementação e validação de políticas de roteamento diferenciadas para um cliente com ASN **65300**. São simulados dois cenários: um onde é anunciada apenas a rota default (0.0.0.0/0) e outro com o anúncio parcial, combinando a rota default e o bloco de endereços do ASN **65200**.
 
@@ -169,7 +169,7 @@ Contribuições, sugestões e melhorias são muito bem-vindas! Para contribuir:
 
 ## Licença
 
-Este projeto está licenciado sob a [MIT License](LICENSE).
+Este projeto está licenciado sob a [LGP-3.0](LICENSE).
 
 ---
 
