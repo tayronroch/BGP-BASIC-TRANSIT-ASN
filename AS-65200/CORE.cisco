@@ -1,0 +1,132 @@
+sysname CORE
+#
+vlan batch 300 4000 to 4003
+#
+router id 10.255.255.1
+#
+vlan 300
+ description PTP-ASN65300
+#
+ospfv3 1
+ router-id 10.255.255.1
+ import-route direct
+ import-route static
+ area 0.0.0.0
+#
+interface Vlanif300
+ description PTP-OPERADORA-ASN65200
+ ipv6 enable
+ ip address 192.168.20.1 255.255.255.252
+ ipv6 address 2001:DB8:BEBE:CAFE:BEBE::4/127
+#
+interface Vlanif4001
+ ipv6 enable
+ ip address 10.1.1.1 255.255.255.252
+ ipv6 address 2001:DB8:BEBE:CAFE:BEBE::/127
+ ospfv3 1 area 0.0.0.0
+ ospfv3 network-type p2p
+ ospf network-type p2p
+ ospf enable 1 area 0.0.0.0
+#
+interface Vlanif4002
+ ipv6 enable
+ ip address 10.1.2.1 255.255.255.252
+ ipv6 address 2001:DB8:BEBE:CAFE:BEBE::2/127
+ ospfv3 1 area 0.0.0.0
+ ospfv3 network-type p2p
+ ospf network-type p2p
+ ospf enable 1 area 0.0.0.0
+#
+interface MEth0/0/0
+ undo shutdown
+#
+interface GE1/0/0
+ undo shutdown
+ port link-type trunk
+ undo port trunk allow-pass vlan 1
+ port trunk allow-pass vlan 300
+#
+interface GE1/0/1
+ undo shutdown
+ port link-type trunk
+ undo port trunk allow-pass vlan 1
+ port trunk allow-pass vlan 4001
+#
+interface GE1/0/2
+ undo shutdown
+ port link-type trunk
+ undo port trunk allow-pass vlan 1
+ port trunk allow-pass vlan 4002
+#
+interface LoopBack0
+ ipv6 enable
+ ip address 10.255.255.1 255.255.255.255
+ ipv6 address 2001:DB8:BEBE:CAFE::1/128
+ ospfv3 1 area 0.0.0.0
+ ospf enable 1 area 0.0.0.0
+#
+interface NULL0 
+#
+bgp 65200
+ peer 10.254.254.1 as-number 65200
+ peer 10.254.254.1 description EDGE-01
+ peer 10.254.254.1 connect-interface LoopBack0
+ peer 10.254.254.2 as-number 65200
+ peer 10.254.254.2 description EDGE-02
+ peer 10.254.254.2 connect-interface LoopBack0
+ peer 192.168.20.2 as-number 65300
+ peer 192.168.20.2 description OPERADORA-ASN65300
+ peer 2001:DB8:BEBE:CAFE:E::1 as-number 65200
+ peer 2001:DB8:BEBE:CAFE:E::1 description EDGE-01
+ peer 2001:DB8:BEBE:CAFE:E::1 connect-interface LoopBack0
+ peer 2001:DB8:BEBE:CAFE:E::2 as-number 65200
+ peer 2001:DB8:BEBE:CAFE:E::2 description EDGE-02
+ peer 2001:DB8:BEBE:CAFE:E::2 connect-interface LoopBack0
+ peer 2001:DB8:BEBE:CAFE:BEBE::5 as-number 65300
+ peer 2001:DB8:BEBE:CAFE:BEBE::5 description CLI-ASN65300
+ #
+ ipv4-family unicast
+  network 172.16.20.0 255.255.252.0
+  peer 10.254.254.1 enable
+  peer 10.254.254.1 next-hop-local
+  peer 10.254.254.2 enable
+  peer 10.254.254.2 next-hop-local
+  peer 192.168.20.2 enable
+  peer 192.168.20.2 route-policy PARCIAL-ROUTE-V4-OUT export
+  peer 192.168.20.2 default-route-advertise 
+ #
+ ipv6-family unicast
+  network 2002:CAFE:: 32
+  peer 2001:DB8:BEBE:CAFE:E::1 enable
+  peer 2001:DB8:BEBE:CAFE:E::1 next-hop-local
+  peer 2001:DB8:BEBE:CAFE:E::2 enable
+  peer 2001:DB8:BEBE:CAFE:E::2 next-hop-local
+  peer 2001:DB8:BEBE:CAFE:BEBE::5 enable
+  peer 2001:DB8:BEBE:CAFE:BEBE::5 route-policy PARCIAL-ROUTE-V6-OUT export
+  peer 2001:DB8:BEBE:CAFE:BEBE::5 default-route-advertise 
+#
+ospf 1 router-id 10.255.255.1
+ import-route direct
+ import-route static
+ area 0.0.0.0
+#
+route-policy DEFAULT-ROUTE-V4-OUT deny node 10
+#               
+route-policy DEFAULT-ROUTE-V6-OUT deny node 1
+#
+route-policy PARCIAL-ROUTE-V4-OUT permit node 1
+ if-match as-path-filter PARCIAL-ROUTE
+#
+route-policy PARCIAL-ROUTE-V4-OUT deny node 2
+#
+route-policy PARCIAL-ROUTE-V6-OUT permit node 1
+ if-match as-path-filter PARCIAL-ROUTE
+#
+route-policy PARCIAL-ROUTE-V6-OUT deny node 2
+#
+ip as-path-filter DEFAULT-GATEWAY index 10 permit ^$
+ip as-path-filter PARCIAL-ROUTE index 10 permit ^$
+#
+ip route-static 172.16.20.0 255.255.252.0 NULL0 description MAIN-NETWORK
+#
+ipv6 route-static 2002:CAFE:: 32 NULL0 description MAIN-NETWORK

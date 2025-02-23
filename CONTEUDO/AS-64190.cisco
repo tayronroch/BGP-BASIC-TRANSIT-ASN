@@ -1,0 +1,68 @@
+sysname CONTEUDO
+#
+vlan batch 1719 1819
+#
+router id 172.19.64.1
+#
+interface Vlanif1719
+ ipv6 enable
+ ip address 192.168.17.5 255.255.255.252
+ ipv6 address 2001:DB8:BEBE:CAFE:BEBE:EF:0:2/127
+#
+interface Vlanif1819
+ ipv6 enable
+ ip address 192.168.18.5 255.255.255.252
+ ipv6 address 2001:DB8:BEBE:CAFE:BEBE:EFF:0:2/127
+#
+interface MEth0/0/0
+ undo shutdown
+#
+interface GE1/0/0
+ undo shutdown
+ port link-type trunk
+ undo port trunk allow-pass vlan 1
+#
+interface GE1/0/1
+ undo shutdown
+ port link-type trunk
+ undo port trunk allow-pass vlan 1
+ port trunk allow-pass vlan 1719
+#
+interface GE1/0/2
+ undo shutdown
+ port link-type trunk
+ undo port trunk allow-pass vlan 1
+ port trunk allow-pass vlan 1819
+#
+interface NULL0
+#
+interface LoopBack0
+ ipv6 enable
+ ip address 172.19.64.1 255.255.255.255
+ ipv6 address 2002:BEBE::1/128
+#
+interface NULL0
+#
+bgp 64190
+ peer 192.168.17.6 as-number 64170
+ peer 192.168.17.6 description OPERADORA-01
+ peer 192.168.18.6 as-number 64180
+ peer 192.168.18.6 description OPERADORA-02
+ peer 2001:DB8:BEBE:CAFE:BEBE:EF:0:3 as-number 64170
+ peer 2001:DB8:BEBE:CAFE:BEBE:EF:0:3 description OPERADORA-01
+ peer 2001:DB8:BEBE:CAFE:BEBE:EFF:0:3 as-number 64180
+ peer 2001:DB8:BEBE:CAFE:BEBE:EFF:0:3 description OPERADORA-02
+ #
+ ipv4-family unicast
+  network 172.19.64.0 255.255.255.0
+  peer 192.168.17.6 enable
+  peer 192.168.18.6 enable
+ #
+ ipv6-family unicast
+  network 2002:BEBE:: 32
+  peer 2001:DB8:BEBE:CAFE:BEBE:EF:0:3 enable
+  peer 2001:DB8:BEBE:CAFE:BEBE:EFF:0:3 enable
+#
+ip route-static 172.19.64.0 255.255.255.0 NULL0 description MAIN-NETWORK
+#
+ipv6 route-static 2002:BEBE:: 32 NULL0 description MAIN-NETWORK

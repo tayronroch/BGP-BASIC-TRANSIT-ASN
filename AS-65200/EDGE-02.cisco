@@ -1,0 +1,85 @@
+sysname EDGE-02
+#
+vlan batch 1800 4000 to 4003
+#
+router id 10.254.254.2
+#
+vlan 1800
+ description PTP-OPERADORA-02
+#
+ospfv3 1
+ router-id 10.254.254.2
+ import-route direct
+ import-route static
+ area 0.0.0.0
+#
+interface Vlanif1800
+ description PTP-OPERADORA-02
+ ipv6 enable
+ ip address 192.168.18.2 255.255.255.252
+ ipv6 address 2001:DB8:BEBE:CAFE:BEBE:EFF::/127
+#
+interface Vlanif4002
+ ipv6 enable
+ ip address 10.1.2.2 255.255.255.252
+ ipv6 address 2001:DB8:BEBE:CAFE:BEBE::3/127
+ ospfv3 1 area 0.0.0.0
+ ospfv3 network-type p2p
+ ospf network-type p2p
+ ospf enable 1 area 0.0.0.0
+#
+interface MEth0/0/0
+ undo shutdown
+#
+interface GE1/0/0
+ undo shutdown
+ port link-type trunk
+ undo port trunk allow-pass vlan 1
+ port trunk allow-pass vlan 1800
+#
+interface GE1/0/1
+ undo shutdown
+ port link-type trunk
+ undo port trunk allow-pass vlan 1
+#
+interface GE1/0/2
+ undo shutdown
+ port link-type trunk
+ undo port trunk allow-pass vlan 1
+ port trunk allow-pass vlan 4002
+#
+interface LoopBack0
+ ipv6 enable
+ ip address 10.254.254.2 255.255.255.255
+ ipv6 address 2001:DB8:BEBE:CAFE:E::2/128
+ ospfv3 1 area 0.0.0.0
+ ospf enable 1 area 0.0.0.0
+#
+interface NULL0
+#
+bgp 65200
+ peer 10.255.255.1 as-number 65200
+ peer 10.255.255.1 description CORE
+ peer 10.255.255.1 connect-interface LoopBack0
+ peer 192.168.18.1 as-number 64180
+ peer 192.168.18.1 description OPERADORA-02
+ peer 2001:DB8:BEBE:CAFE::1 as-number 65200
+ peer 2001:DB8:BEBE:CAFE::1 description CORE
+ peer 2001:DB8:BEBE:CAFE::1 connect-interface LoopBack0
+ peer 2001:DB8:BEBE:CAFE:BEBE:EFF:0:1 as-number 64180
+ peer 2001:DB8:BEBE:CAFE:BEBE:EFF:0:1 description OPERADORA-02
+ #
+ ipv4-family unicast
+  peer 10.255.255.1 enable
+  peer 10.255.255.1 next-hop-local
+  peer 192.168.18.1 enable
+ #
+ ipv6-family unicast
+  peer 2001:DB8:BEBE:CAFE::1 enable
+  peer 2001:DB8:BEBE:CAFE:BEBE:EFF:0:1 enable
+#
+ospf 1 router-id 10.254.254.2
+ import-route direct
+ import-route static
+ area 0.0.0.0
+#

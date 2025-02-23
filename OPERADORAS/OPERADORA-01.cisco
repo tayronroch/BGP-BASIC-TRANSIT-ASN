@@ -1,0 +1,58 @@
+sysname OPERADORA-01
+#
+vlan batch 1700 1719
+#
+router id 192.168.17.1
+#
+vlan 1700
+ description CLI-AS65200
+#
+interface Vlanif1700
+ description PTP-ASN65200
+ ipv6 enable
+ ip address 192.168.17.1 255.255.255.252
+ ipv6 address 2001:DB8:BEBE:CAFE:BEBE:EF:0:1/127
+#
+interface Vlanif1719
+ ipv6 enable
+ ip address 192.168.17.6 255.255.255.252
+ ipv6 address 2001:DB8:BEBE:CAFE:BEBE:EF:0:3/127
+#
+interface MEth0/0/0
+ undo shutdown
+#
+interface GE1/0/0
+ undo shutdown
+ port link-type trunk
+ undo port trunk allow-pass vlan 1
+ port trunk allow-pass vlan 1700
+#
+interface GE1/0/1
+ undo shutdown
+ port link-type trunk
+ undo port trunk allow-pass vlan 1
+ port trunk allow-pass vlan 1719
+#
+bgp 64170
+ peer 192.168.17.2 as-number 65200
+ peer 192.168.17.2 description CLI-AS65200
+ peer 192.168.17.5 as-number 64190
+ peer 192.168.17.5 description CONTEUDO
+ peer 2001:DB8:BEBE:CAFE:BEBE:EF:: as-number 65200
+ peer 2001:DB8:BEBE:CAFE:BEBE:EF:: description CLI-AS65200
+ peer 2001:DB8:BEBE:CAFE:BEBE:EF:0:2 as-number 64190
+ peer 2001:DB8:BEBE:CAFE:BEBE:EF:0:2 description CONTEUDO
+ #
+ ipv4-family unicast
+  network 172.17.64.0 255.255.255.0
+  peer 192.168.17.2 enable
+  peer 192.168.17.5 enable
+ #
+ ipv6-family unicast
+  network 2002:FF:: 32
+  peer 2001:DB8:BEBE:CAFE:BEBE:EF:: enable
+  peer 2001:DB8:BEBE:CAFE:BEBE:EF:0:2 enable
+#
+ip route-static 172.17.64.0 255.255.255.0 NULL0 description MAIN-NETWORK
+#
+ipv6 route-static 2002:FF:: 32 NULL0 description MAIN-NETWORK
