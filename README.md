@@ -1,4 +1,3 @@
-```markdown
 # Huawei Enterprise Router Lab - Políticas de Roteamento Diferenciadas
 
 Este repositório contém a configuração e a documentação de um laboratório utilizando roteadores Huawei Enterprise, com foco na implementação e validação de políticas de roteamento diferenciadas para um cliente com ASN **65300**. São simulados dois cenários: um onde é anunciada apenas a rota default (0.0.0.0/0) e outro com o anúncio parcial, combinando a rota default e o bloco de endereços do ASN **65200**.
@@ -60,7 +59,6 @@ Neste laboratório, simulamos um ambiente de rede real utilizando roteadores Hua
   vlan batch 300 4000 to 4003
   vlan 300
    description PTP-ASN65300
-  ```
 
 ### Roteamento Interno (OSPF/OSPFv3)
 
