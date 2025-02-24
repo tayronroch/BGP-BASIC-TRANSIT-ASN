@@ -142,6 +142,29 @@ vlan 300
 
 ## Testes e Validação
 
+
+## Arquitetura e Topologia
+
+A topologia da rede no laboratório é representada na imagem abaixo:
+![Topologia da Rede](IMAGENS/topologia.png)
+
+---
+
+## Testes e Validação
+
+Durante os testes, foram registradas capturas de tela para validar o funcionamento da configuração:
+
+![Topologia da Rede - CORE](IMAGENS/CORE.png)
+
+### **Anúncio de Rota Default**
+![Default Route](IMAGENS/default-route.png)
+
+### **Anúncio de Rota Parcial**
+![Parcial Route](IMAGENS/parcial-route.png)
+
+### **Conectividade com Provedor de Conteúdo**
+![Provedor de Conteúdo](IMAGENS/provedor-conteudo.png)
+
 - **Simulação de Cenários:**  
   São realizados testes para validar ambos os cenários:
   - **Rota Default Simples:** Onde somente a rota 0.0.0.0/0 é anunciada.
