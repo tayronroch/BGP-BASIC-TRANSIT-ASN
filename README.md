@@ -14,38 +14,48 @@ Este repositório contém a configuração e a documentação de um laboratório
   - [Configuração BGP e Políticas de Roteamento](#configuração-bgp-e-políticas-de-roteamento)
   - [Rotas Estáticas](#rotas-estáticas)
 - [Testes e Validação](#testes-e-validação)
+  - [Capturas de Tela](#capturas-de-tela)
 - [Como Utilizar](#como-utilizar)
 - [Contribuições](#contribuições)
 - [Licença](#licença)
 
+---
+
 ## Introdução
 
 Neste laboratório, simulamos um ambiente de rede real utilizando roteadores Huawei Enterprise. O foco é demonstrar a aplicação de políticas de roteamento avançadas para atender às necessidades específicas de um cliente (ASN **65300**). A implementação contempla dois cenários de anúncio de rotas:
-- **Rota Default Simples:** entrega exclusiva da rota 0.0.0.0/0.
+
+- **Rota Default Simples:** entrega exclusiva da rota 0.0.0.0/0.  
 - **Rota Parcial:** anúncio condicional, combinando a rota default com o bloco de endereços do ASN **65200**.
+
+---
 
 ## Objetivos
 
 - **Segmentação de Políticas de Roteamento:**  
-  - Permitir cenários distintos de anúncio de rotas, garantindo o controle refinado do tráfego entre operadoras e clientes.
+  - Permitir cenários distintos de anúncio de rotas, garantindo o controle refinado do tráfego entre operadoras e clientes.  
   - Validar a eficácia dos filtros de as-path e das route-policies na exportação seletiva de rotas.
 
 - **Ambiente Realista:**  
   - Replicar a complexidade de ambientes de operadoras e grandes empresas através da simulação de múltiplas VLANs, sessões OSPF/OSPFv3 e BGP.
 
+---
+
 ## Arquitetura e Topologia
 
 - **VLANs e Segmentação:**  
-  - **VLAN 300:** Designada para identificar o PTP do cliente (ASN 65300).
+  - **VLAN 300:** Designada para identificar o PTP do cliente (ASN 65300).  
   - **VLANs 4001 e 4002:** Utilizadas para interconexão e separação dos fluxos de tráfego internos.
 
 - **Protocolos de Roteamento:**  
-  - **OSPF/OSPFv3:** Configurados com o router ID **10.255.255.1**, possibilitando a importação de rotas diretas e estáticas.
+  - **OSPF/OSPFv3:** Configurados com o router ID **10.255.255.1**, possibilitando a importação de rotas diretas e estáticas.  
   - **BGP:** Estabelece peering entre ASN **65200** e **65300**, aplicando políticas específicas para o controle de anúncios de rotas.
 
 - **Interfaces e Conectividade:**  
-  - Interfaces VLAN (como Vlanif300, Vlanif4001, Vlanif4002) configuradas com endereços IPv4 e IPv6.
+  - Interfaces VLAN (como Vlanif300, Vlanif4001, Vlanif4002) configuradas com endereços IPv4 e IPv6.  
   - Interfaces físicas (MEth, GE) configuradas em modo trunk, permitindo o tráfego de múltiplas VLANs.
+
+---
 
 ## Detalhamento das Configurações
 
@@ -54,11 +64,11 @@ Neste laboratório, simulamos um ambiente de rede real utilizando roteadores Hua
 - **Criação de VLANs:**  
   As VLANs são configuradas para segmentar o tráfego, possibilitando a separação lógica entre o ambiente do cliente e a operadora.
 
-- **Exemplo:**  
-  ```plaintext
-  vlan batch 300 4000 to 4003
-  vlan 300
-   description PTP-ASN65300
+```plaintext
+vlan batch 300 4000 to 4003
+vlan 300
+ description PTP-ASN65300
+
 
 ### Roteamento Interno (OSPF/OSPFv3)
 
