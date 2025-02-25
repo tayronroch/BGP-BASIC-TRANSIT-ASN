@@ -2,6 +2,10 @@
 
 Este repositório contém a configuração e a documentação de um laboratório utilizando roteadores Huawei Enterprise, com foco na implementação e validação de políticas de roteamento diferenciadas para um cliente com ASN **65300**. São simulados dois cenários: um onde é anunciada apenas a rota default (0.0.0.0/0) e outro com o anúncio parcial, combinando a rota default e o bloco de endereços do ASN **65200**.
 
+# Nota
+
+Esse laboratorio tem como finalidade apenas testar alguns conceitos importantes dentro de um cenário real. Existem outras formas de se obter o mesmo resultado, que considero até melhores a depender do cenário.
+
 ## Sumário
 
 - [Introdução](#introdução)
