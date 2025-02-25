@@ -27,7 +27,7 @@ Esse laboratorio tem como finalidade apenas testar alguns conceitos importantes 
 
 ## Introdução
 
-Neste laboratório, simulamos um ambiente de rede real utilizando roteadores Huawei Enterprise. O foco é demonstrar a aplicação de políticas de roteamento avançadas para estudantes e etusiatas da area, de forma didatica. (ASN **65300**). A utilização do comando "default-route-advertise" combinado com uso de uma regex nos possibilita que seja feito anuncios que se adequem a determinadas demandas do cotidiano. Cabe destacar que, a implementação em questão não visa ensinar qual a melhor pratica para esses cenários. Tendo em vista que há outras formas de se atingir esse mesmo objetivo.
+Neste laboratório, simulamos um ambiente de rede real utilizando roteadores Huawei Enterprise. O foco é demonstrar a aplicação de políticas de roteamento avançadas para estudantes e etusiatas da area, de forma didatica. (ASN **65300**). A utilização do comando "default-route-advertise" combinado com uso de uma regex nos possibilita que seja feito anuncios que se adequem a determinadas demandas do cotidiano. Cabe destacar que, a implementação em questão não visa ensinar qual a melhor prática para esses cenários. Tendo em vista que há outras formas de se atingir esse mesmo objetivo.
 
 A implementação contempla dois cenários de anúncio de rotas:
 
