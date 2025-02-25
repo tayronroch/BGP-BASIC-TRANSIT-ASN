@@ -110,7 +110,7 @@ ospf 1 router-id 10.255.255.1
  import-route static
  area 0.0.0.0
 #
-route-policy DEFAULT-ROUTE-V4-OUT deny node 10
+route-policy DEFAULT-ROUTE-V4-OUT deny node 1
 #               
 route-policy DEFAULT-ROUTE-V6-OUT deny node 1
 #
@@ -124,7 +124,6 @@ route-policy PARCIAL-ROUTE-V6-OUT permit node 1
 #
 route-policy PARCIAL-ROUTE-V6-OUT deny node 2
 #
-ip as-path-filter DEFAULT-GATEWAY index 10 permit ^$
 ip as-path-filter PARCIAL-ROUTE index 10 permit ^$
 #
 ip route-static 172.16.20.0 255.255.252.0 NULL0 description MAIN-NETWORK

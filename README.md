@@ -23,10 +23,12 @@ Este repositório contém a configuração e a documentação de um laboratório
 
 ## Introdução
 
-Neste laboratório, simulamos um ambiente de rede real utilizando roteadores Huawei Enterprise. O foco é demonstrar a aplicação de políticas de roteamento avançadas para atender às necessidades específicas de um cliente (ASN **65300**). A implementação contempla dois cenários de anúncio de rotas:
+Neste laboratório, simulamos um ambiente de rede real utilizando roteadores Huawei Enterprise. O foco é demonstrar a aplicação de políticas de roteamento avançadas para estudantes e etusiatas da area, de forma didatica. (ASN **65300**). A utilização do comando "default-route-advertise" combinado com uso de uma regex nos possibilita que seja feito anuncios que se adequem a determinadas demandas do cotidiano. Cabe destacar que, a implementação em questão não visa ensinar qual a melhor pratica para esses cenários. Tendo em vista que há outras formas de se atingir esse mesmo objetivo.
+
+A implementação contempla dois cenários de anúncio de rotas:
 
 - **Rota Default Simples:** entrega exclusiva da rota 0.0.0.0/0.  
-- **Rota Parcial:** anúncio condicional, combinando a rota default com o bloco de endereços do ASN **65200**.
+- **Rota Parcial:** anúncio condicional, combinando o comando "default-route-advertise", Route-Policy combinado com uma as-path-filter  regexp para filtrar todas as rotas aprendidas pelo ASN **65200**.
 
 ---
 
@@ -35,9 +37,7 @@ Neste laboratório, simulamos um ambiente de rede real utilizando roteadores Hua
 - **Segmentação de Políticas de Roteamento:**  
   - Permitir cenários distintos de anúncio de rotas, garantindo o controle refinado do tráfego entre operadoras e clientes.  
   - Validar a eficácia dos filtros de as-path e das route-policies na exportação seletiva de rotas.
-
-- **Ambiente Realista:**  
-  - Replicar a complexidade de ambientes de operadoras e grandes empresas através da simulação de múltiplas VLANs, sessões OSPF/OSPFv3 e BGP.
+  - Demonstrar a utilização do comando "default-route-advertise", Route-Policy combinado com uma as-path-filter  regexp.
 
 ---
 
@@ -50,95 +50,75 @@ Neste laboratório, simulamos um ambiente de rede real utilizando roteadores Hua
 - **Protocolos de Roteamento:**  
   - **OSPF/OSPFv3:** Configurados com o router ID **10.255.255.1**, possibilitando a importação de rotas diretas e estáticas.  
   - **BGP:** Estabelece peering entre ASN **65200** e **65300**, aplicando políticas específicas para o controle de anúncios de rotas.
+  - **iBGP:** Peer iBGP estabelecido usando a loopback0 de cada componente da arquetetura do ASN65200.
 
 - **Interfaces e Conectividade:**  
   - Interfaces VLAN (como Vlanif300, Vlanif4001, Vlanif4002) configuradas com endereços IPv4 e IPv6.  
-  - Interfaces físicas (MEth, GE) configuradas em modo trunk, permitindo o tráfego de múltiplas VLANs.
-
 ---
 
 ## Detalhamento das Configurações
 
-### Gerenciamento de VLANs
+### Configurando Route-Policys
 
-- **Criação de VLANs:**  
+- **DEFAUL-ROUTE:**  
   As VLANs são configuradas para segmentar o tráfego, possibilitando a separação lógica entre o ambiente do cliente e a operadora.
 
 ```plaintext
-vlan batch 300 4000 to 4003
-vlan 300
- description PTP-ASN65300
-
-
-### Roteamento Interno (OSPF/OSPFv3)
-
-- **Configuração OSPF/OSPFv3:**  
-  - Define o router ID como **10.255.255.1**.
-  - Importa rotas diretas e estáticas para a tabela de roteamento.
-  
-- **Exemplo:**
-  ```plaintext
-  ospfv3 1
-   router-id 10.255.255.1
-   import-route direct
-   import-route static
-   area 0.0.0.0
+#
+  route-policy DEFAULT-ROUTE-V4-OUT deny node 1            
+  route-policy DEFAULT-ROUTE-V6-OUT deny node 1
+#
+bgp 65200
+ peer 2001:DB8:BEBE:CAFE:BEBE::5 as-number 65300
+ peer 2001:DB8:BEBE:CAFE:BEBE::5 description CLI-ASN65300
+ #
+ ipv4-family unicast
+  peer 192.168.20.2 enable
+  peer 192.168.20.2 route-policy DEFAULT-ROUTE-V4-OUT export
+  peer 192.168.20.2 default-route-advertise 
+ #
+ ipv6-family unicast
+  peer 2001:DB8:BEBE:CAFE:BEBE::5 enable
+  peer 2001:DB8:BEBE:CAFE:BEBE::5 route-policy DEFAULT-ROUTE-V6-OUT export
+  peer 2001:DB8:BEBE:CAFE:BEBE::5 default-route-advertise 
+#
   ```
+- **PARCIAL-ROUTE:**  
 
-### Configuração de Interfaces
-
-- **Interfaces VLAN:**  
-  Configuradas com IPv4 e IPv6, permitindo a comunicação entre os segmentos de rede.
-  
-- **Interfaces Físicas:**  
-  As interfaces MEth e GE são configuradas para operar em modo trunk, assegurando a passagem das VLANs configuradas.
-  
-- **Exemplo:**
-  ```plaintext
-  interface Vlanif300
-   description PTP-OPERADORA-ASN65200
-   ipv6 enable
-   ip address 192.168.20.1 255.255.255.252
-   ipv6 address 2001:DB8:BEBE:CAFE:BEBE::4/127
+```plaintext
+#
+  route-policy PARCIAL-ROUTE-V4-OUT permit node 1
+    if-match as-path-filter PARCIAL-ROUTE
+  route-policy PARCIAL-ROUTE-V4-OUT deny node 2
+  route-policy PARCIAL-ROUTE-V6-OUT permit node 1
+    if-match as-path-filter PARCIAL-ROUTE
+  route-policy PARCIAL-ROUTE-V6-OUT deny node 2
+#
+ip as-path-filter PARCIAL-ROUTE index 10 permit ^$
+#
+bgp 65200
+ peer 2001:DB8:BEBE:CAFE:BEBE::5 as-number 65300
+ peer 2001:DB8:BEBE:CAFE:BEBE::5 description CLI-ASN65300
+ #
+ ipv4-family unicast
+  peer 192.168.20.2 enable
+  peer 192.168.20.2 route-policy PARCIAL-ROUTE-V4-OUT export
+  peer 192.168.20.2 default-route-advertise 
+ #
+ ipv6-family unicast
+  peer 2001:DB8:BEBE:CAFE:BEBE::5 enable
+  peer 2001:DB8:BEBE:CAFE:BEBE::5 route-policy PARCIAL-ROUTE-V6-OUT export
+  peer 2001:DB8:BEBE:CAFE:BEBE::5 default-route-advertise 
+#
   ```
-
 ### Configuração BGP e Políticas de Roteamento
 
 - **Estabelecimento de Peering BGP:**  
   - Peering entre os ASNs 65200 e 65300, com sessões configuradas via IPv4 e IPv6.
-  - Conexões realizadas através da interface LoopBack0 para maior estabilidade.
 
 - **Route-Policies e as-path-filters:**  
   - **DEFAULT-ROUTE:** Política que nega o anúncio padrão em determinados nós.
   - **PARCIAL-ROUTE:** Permite a exportação condicional da rota default combinada com o bloco do ASN 65200, mediante verificação via as-path-filter.
-  
-- **Exemplo:**
-  ```plaintext
-  bgp 65200
-   peer 192.168.20.2 as-number 65300
-   peer 192.168.20.2 description OPERADORA-ASN65300
-   ...
-   ipv4-family unicast
-    network 172.16.20.0 255.255.252.0
-    peer 192.168.20.2 route-policy PARCIAL-ROUTE-V4-OUT export
-    peer 192.168.20.2 default-route-advertise 
-  ...
-  route-policy DEFAULT-ROUTE-V4-OUT deny node 10
-  route-policy PARCIAL-ROUTE-V4-OUT permit node 1
-   if-match as-path-filter PARCIAL-ROUTE
-  route-policy PARCIAL-ROUTE-V4-OUT deny node 2
-  ```
-
-### Rotas Estáticas
-
-- **Definição de Rotas Internas:**  
-  Rotas estáticas são configuradas para garantir que o tráfego destinado à rede principal seja encaminhado de forma apropriada, mesmo diante de falhas de roteamento dinâmico.
-
-- **Exemplo:**
-  ```plaintext
-  ip route-static 172.16.20.0 255.255.252.0 NULL0 description MAIN-NETWORK
-  ipv6 route-static 2002:CAFE:: 32 NULL0 description MAIN-NETWORK
-  ```
 
 ## Testes e Validação
 
