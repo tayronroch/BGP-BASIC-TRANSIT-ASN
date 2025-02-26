@@ -130,7 +130,7 @@ bgp 65200
 ## Arquitetura e Topologia
 
 A topologia da rede no laboratório é representada na imagem abaixo:
-![Topologia da Rede](IMAGENS/topologia.png)
+![Topologia da Rede](IMAGENS/topologiav2.png)
 
 ---
 
